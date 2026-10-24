@@ -7,22 +7,25 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
-    <div class="max-w-6xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+    <div class="max-w-7xl mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
         <h2 class="text-3xl font-bold text-green-600 mb-6 text-center">Go Green Mobility - Admin Dashboard</h2>
         <div class="overflow-x-auto">
-            <table class="w-full border-collapse border border-gray-300">
+            <table class="w-full border-collapse border border-gray-300 text-sm">
                 <thead>
                     <tr class="bg-green-100">
-                        <th class="border border-gray-300 px-4 py-2">नाम (Name)</th>
-                        <th class="border border-gray-300 px-4 py-2">मोबाइल (Phone)</th>
-                        <th class="border border-gray-300 px-4 py-2">पार्टनर (Partner)</th>
-                        <th class="border border-gray-300 px-4 py-2">स्थिति (Status)</th>
-                        <th class="border border-gray-300 px-4 py-2">स्कूटी नंबर (Scooter)</th>
-                        <th class="border border-gray-300 px-4 py-2">कारवाई (Action)</th>
+                        <th class="border border-gray-300 px-3 py-2">नाम (Name)</th>
+                        <th class="border border-gray-300 px-3 py-2">मोबाइल (Phone)</th>
+                        <th class="border border-gray-300 px-3 py-2">पार्टनर (Partner)</th>
+                        <th class="border border-gray-300 px-3 py-2">ड्राइविंग लाइसेंस (DL)</th>
+                        <th class="border border-gray-300 px-3 py-2">आधार नंबर (Aadhaar)</th>
+                        <th class="border border-gray-300 px-3 py-2">पैन नंबर (PAN)</th>
+                        <th class="border border-gray-300 px-3 py-2">स्थिति (Status)</th>
+                        <th class="border border-gray-300 px-3 py-2">स्कूटी नंबर</th>
+                        <th class="border border-gray-300 px-3 py-2">कारवाई (Action)</th>
                     </tr>
                 </thead>
                 <tbody id="riderTableBody">
-                    <tr><td colspan="6" class="text-center py-4 text-gray-500">Loading data...</td></tr>
+                    <tr><td colspan="9" class="text-center py-4 text-gray-500">Loading data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -39,7 +42,7 @@
                 const riders = result.data || result;
 
                 if (!riders || riders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">कोई राइडर उपलब्ध नहीं है।</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-gray-500">कोई राइडर उपलब्ध नहीं है।</td></tr>`;
                     return;
                 }
 
@@ -47,21 +50,24 @@
                 riders.forEach(rider => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td class="border border-gray-300 px-4 py-2">${rider.name}</td>
-                        <td class="border border-gray-300 px-4 py-2">${rider.phone}</td>
-                        <td class="border border-gray-300 px-4 py-2">${rider.partner}</td>
-                        <td class="border border-gray-300 px-4 py-2 font-semibold ${rider.status === 'Approved' ? 'text-green-600' : 'text-yellow-600'}">${rider.status || 'Pending'}</td>
-                        <td class="border border-gray-300 px-4 py-2">${rider.scooterNumber || 'Not Assigned'}</td>
-                        <td class="border border-gray-300 px-4 py-2 text-center">
+                        <td class="border border-gray-300 px-3 py-2 font-medium">${rider.name || '-'}</td>
+                        <td class="border border-gray-300 px-3 py-2">${rider.phone || '-'}</td>
+                        <td class="border border-gray-300 px-3 py-2 font-semibold text-green-700">${rider.partner || '-'}</td>
+                        <td class="border border-gray-300 px-3 py-2">${rider.drivingLicense || '-'}</td>
+                        <td class="border border-gray-300 px-3 py-2">${rider.aadhaar || '-'}</td>
+                        <td class="border border-gray-300 px-3 py-2 uppercase">${rider.pan || '-'}</td>
+                        <td class="border border-gray-300 px-3 py-2 font-semibold ${rider.status === 'Approved' ? 'text-green-600' : 'text-yellow-600'}">${rider.status || 'Pending'}</td>
+                        <td class="border border-gray-300 px-3 py-2">${rider.scooterNumber || 'Not Assigned'}</td>
+                        <td class="border border-gray-300 px-3 py-2 text-center">
                             ${rider.status !== 'Approved' ? `
-                                <button onclick="approveRider('${rider._id}')" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm font-medium">अप्रूव करें</button>
-                            ` : '<span class="text-gray-400 font-medium">Approved</span>'}
+                                <button onclick="approveRider('${rider._id}')" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs font-medium">अप्रूव करें</button>
+                            ` : '<span class="text-gray-400 font-medium text-xs">Approved</span>'}
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-500">डेटा लोड करने में त्रुटि हुई।</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-red-500">डेटा लोड करने में त्रुटि हुई।</td></tr>`;
             }
         }
 
