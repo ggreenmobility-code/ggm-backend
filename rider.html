@@ -3,96 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go Green Mobility - Rider Partner App</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Go Green Mobility - Rider Registration</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 flex items-center justify-center min-h-screen">
-
-    <!-- Mobile Frame Simulation -->
-    <div class="w-full max-w-md bg-white shadow-2xl rounded-3xl overflow-hidden border border-slate-200">
-        
-        <!-- App Header -->
-        <header class="bg-emerald-900 text-white p-4 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <img src="image_0.png" alt="GGM Logo" class="h-10 w-auto bg-white rounded p-1">
+<body class="bg-gray-50 font-sans">
+    <div class="max-w-md mx-auto mt-10 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold text-green-600 mb-6 text-center">Go Green Mobility - Rider KYC</h2>
+        <form id="riderForm" class="space-y-4">
+            <div>
+                <label class="block text-gray-700 font-medium mb-1">पूरा नाम (Full Name)</label>
+                <input type="text" id="name" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
-            <div class="flex flex-col items-end">
-                <h1 class="font-bold text-sm">Go Green Mobility</h1>
-                <span class="text-[10px] text-emerald-200">Rider Partner App</span>
+            <div>
+                <label class="block text-gray-700 font-medium mb-1">मोबाइल नंबर (Phone Number)</label>
+                <input type="tel" id="phone" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
-        </header>
-
-        <!-- Form Content -->
-        <div class="p-6">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">राइडर रजिस्ट्रेशन और KYC</h2>
-            
-            <form id="riderForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">पूरा नाम (Full Name)</label>
-                    <input type="text" id="riderName" required placeholder="अपना नाम दर्ज करें" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">मोबाइल नंबर (Mobile Number)</label>
-                    <input type="tel" id="riderPhone" required placeholder="10 अंकों का मोबाइल नंबर" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">क्विक-कॉमर्स पार्टनर (Quick-Commerce Partner)</label>
-                    <select id="quickCommercePartner" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
-                        <option value="Blinkit">Blinkit</option>
-                        <option value="Zepto">Zepto</option>
-                        <option value="Instamart">Instamart</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200 text-sm shadow-lg">
-                    सबमिट करें & रिक्वेस्ट भेजें
-                </button>
-            </form>
-        </div>
+            <div>
+                <label class="block text-gray-700 font-medium mb-1">डिलीवरी पार्टनर (Partner)</label>
+                <select id="partner" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="Blinkit">Blinkit</option>
+                    <option value="Zepto">Zepto</option>
+                    <option value="Instamart">Instamart</option>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">रजिस्टर करें (Register)</button>
+        </form>
+        <div id="message" class="mt-4 text-center font-medium"></div>
     </div>
 
-    <!-- Backend Integration Script -->
     <script>
-        const form = document.querySelector('#riderForm');
-        
-        if (form) {
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault(); // पेज रीफ्रेश होने से रोकता है
+        const API_URL = "https://ggm-backend-77yp.onrender.com";
 
-                const riderData = {
-                    name: document.querySelector('#riderName').value,
-                    phone: document.querySelector('#riderPhone').value,
-                    partner: document.querySelector('#quickCommercePartner').value
-                };
+        document.getElementById('riderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const partner = document.getElementById('partner').value;
+            const msgDiv = document.getElementById('message');
 
-                try {
-                    const response = await fetch(https://ggm-backend-77yp.onrender.com, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(riderData)
-                    });
-
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        alert("🎉 बधाई हो! राइडर का डेटा सफलता पूर्वक सबमिट हो गया है!");
-                        form.reset(); // फॉर्म खाली कर देगा
-                    } else {
-                        alert("⚠️ सेव करने में कुछ दिक्कत आई: " + result.error);
-                    }
-                } catch (err) {
-                    console.error("सर्वर कनेक्शन एरर:", err);
-                    alert("❌ बैकएंड सर्वर से कनेक्ट नहीं हो पा रहा है!");
+            try {
+                const response = await fetch(`${API_URL}/api/register-rider`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, partner })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    msgDiv.className = "mt-4 text-center font-medium text-green-600";
+                    msgDiv.innerText = "सफलतापूर्वक रजिस्टर हो गया!";
+                    document.getElementById('riderForm').reset();
+                } else {
+                    msgDiv.className = "mt-4 text-center font-medium text-red-600";
+                    msgDiv.innerText = data.message || "रजिस्ट्रेशन विफल हुआ।";
                 }
-            });
-        }
+            } catch (err) {
+                msgDiv.className = "mt-4 text-center font-medium text-red-600";
+                msgDiv.innerText = "सर्वर से कनेक्ट करने में त्रुटि।";
+            }
+        });
     </script>
 </body>
 </html>
