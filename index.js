@@ -2,8 +2,7 @@ const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 
 const app = express();
-const PORT = 5000;
-
+const PORT = process.env.PORT || 5000;
 // CORS अनुमति
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
