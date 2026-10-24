@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Green Mobility - Rider Partner App</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 flex items-center justify-center min-h-screen">
+
+    <!-- Mobile Frame Simulation -->
+    <div class="w-full max-w-md bg-white shadow-2xl rounded-3xl overflow-hidden border border-slate-200">
+        
+        <!-- App Header -->
+        <header class="bg-emerald-900 text-white p-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="image_0.png" alt="GGM Logo" class="h-10 w-auto bg-white rounded p-1">
+            </div>
+            <div class="flex flex-col items-end">
+                <h1 class="font-bold text-sm">Go Green Mobility</h1>
+                <span class="text-[10px] text-emerald-200">Rider Partner App</span>
+            </div>
+        </header>
+
+        <!-- Form Content -->
+        <div class="p-6">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">राइडर रजिस्ट्रेशन और KYC</h2>
+            
+            <form id="riderForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">पूरा नाम (Full Name)</label>
+                    <input type="text" id="riderName" required placeholder="अपना नाम दर्ज करें" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">मोबाइल नंबर (Mobile Number)</label>
+                    <input type="tel" id="riderPhone" required placeholder="10 अंकों का मोबाइल नंबर" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">क्विक-कॉमर्स पार्टनर (Quick-Commerce Partner)</label>
+                    <select id="quickCommercePartner" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                        <option value="Blinkit">Blinkit</option>
+                        <option value="Zepto">Zepto</option>
+                        <option value="Instamart">Instamart</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200 text-sm shadow-lg">
+                    सबमिट करें & रिक्वेस्ट भेजें
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Backend Integration Script -->
+    <script>
+        const form = document.querySelector('#riderForm');
+        
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault(); // पेज रीफ्रेश होने से रोकता है
+
+                const riderData = {
+                    name: document.querySelector('#riderName').value,
+                    phone: document.querySelector('#riderPhone').value,
+                    partner: document.querySelector('#quickCommercePartner').value
+                };
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/register-rider', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(riderData)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert("🎉 बधाई हो! राइडर का डेटा सफलता पूर्वक सबमिट हो गया है!");
+                        form.reset(); // फॉर्म खाली कर देगा
+                    } else {
+                        alert("⚠️ सेव करने में कुछ दिक्कत आई: " + result.error);
+                    }
+                } catch (err) {
+                    console.error("सर्वर कनेक्शन एरर:", err);
+                    alert("❌ बैकएंड सर्वर से कनेक्ट नहीं हो पा रहा है!");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

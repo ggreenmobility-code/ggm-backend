@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Green Mobility - Admin Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen">
+
+    <!-- Top Header -->
+    <header class="bg-emerald-900 text-white shadow-md p-4 flex justify-between items-center">
+        <h1 class="font-bold text-lg">Go Green Mobility | Admin Dashboard</h1>
+        <button onclick="loadRiders()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+            <i class="fas fa-sync-alt"></i> डेटा रीफ्रेश करें
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-6">
+        <h2 class="text-2xl font-bold mb-4 text-slate-700">राइडर अप्रूवल और फ्लीट मैनेजमेंट</h2>
+        
+        <div class="bg-white shadow-lg rounded-2xl overflow-hidden border border-slate-200">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-emerald-50 text-emerald-900 border-b border-slate-200 text-sm">
+                            <th class="p-4 font-semibold">राइडर का नाम</th>
+                            <th class="p-4 font-semibold">मोबाइल नंबर</th>
+                            <th class="p-4 font-semibold">पार्टनर</th>
+                            <th class="p-4 font-semibold">रजिस्ट्रेशन समय</th>
+                            <th class="p-4 font-semibold">KYC स्टेटस</th>
+                            <th class="p-4 font-semibold text-center">कार्रवाई (Action)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="riderTableBody" class="divide-y divide-slate-100 text-sm">
+                        <tr>
+                            <td colspan="6" class="p-6 text-center text-slate-500">डेटा लोड हो रहा है...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripting -->
+    <script>
+        async function loadRiders() {
+            const tableBody = document.querySelector('#riderTableBody');
+            tableBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">डेटा लोड हो रहा है...</td></tr>`;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/riders');
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    tableBody.innerHTML = '';
+                    result.data.forEach(rider => {
+                        const dateStr = rider.createdAt ? new Date(rider.createdAt).toLocaleString('hi-IN') : 'N/A';
+                        
+                        // Status badge design
+                        let statusBadge = '';
+                        if (rider.status === 'Approved') {
+                            statusBadge = `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">Approved (स्कूटी अलॉटेड)</span>`;
+                        } else if (rider.status === 'Rejected') {
+                            statusBadge = `<span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-bold">Rejected</span>`;
+                        } else {
+                            statusBadge = `<span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-bold">Pending KYC</span>`;
+                        }
+
+                        const row = `
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-4 font-medium text-slate-800">${rider.name || 'N/A'}</td>
+                                <td class="p-4 text-slate-600">${rider.phone || 'N/A'}</td>
+                                <td class="p-4"><span class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-semibold">${rider.partner || 'N/A'}</span></td>
+                                <td class="p-4 text-slate-500 text-xs">${dateStr}</td>
+                                <td class="p-4">${statusBadge}</td>
+                                <td class="p-4 text-center space-x-2">
+                                    <button onclick="updateRiderStatus('${rider._id}', 'Approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow">
+                                        Approve & Assign
+                                    </button>
+                                    <button onclick="updateRiderStatus('${rider._id}', 'Rejected')" class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow">
+                                        Reject
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">कोई रजिस्टर्ड राइडर नहीं मिला।</td></tr>`;
+                }
+            } catch (err) {
+                console.error("डाटा लाने में एरर:", err);
+                tableBody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-red-500">बैकएंड सर्वर से कनेक्ट नहीं हो पा रहा है!</td></tr>`;
+            }
+        }
+
+        async function updateRiderStatus(id, status) {
+            try {
+                const response = await fetch('http://localhost:5000/api/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, status })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(`सफलता! राइडर का स्टेटस '${status}' कर दिया गया है।`);
+                    loadRiders(); // टेबल रिफ्रेश करें
+                } else {
+                    alert("एरर: " + result.error);
+                }
+            } catch (err) {
+                console.error("अपडेट करने में एरर:", err);
+                alert("सर्वर से कनेक्ट नहीं हो पाया।");
+            }
+        }
+
+        loadRiders();
+    </script>
+</body>
+</html>
