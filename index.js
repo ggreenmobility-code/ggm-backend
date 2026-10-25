@@ -8,7 +8,16 @@ app.use(cors());
 
 // यहाँ अपनी MongoDB Atlas की सही कनेक्शन स्ट्रिंग डालें (अगर पर्यावरण वेरिएबल सेट नहीं है)
 "mongodb+srv://ggreenmobility%40gmail.com:EmZKyHHp4tVSkRB@cluster0.bpraxez.mongodb.net/"
+const MONGO_URI = "mongodb+srv://ggreenmobility%40gmail.com:EmZKyHHp4tVSkRB@cluster0.bprax... (आपकी पूरी लिंक)";
 
+mongoose.connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log("MongoDB Connected Successfully");
+}).catch(err => {
+    console.log("MongoDB Connection Error: ", err);
+});
 mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
