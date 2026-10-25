@@ -7,8 +7,8 @@ app.use(express.json());
 app.use(cors());
 
 // यहाँ अपनी MongoDB Atlas की सही कनेक्शन स्ट्रिंग डालें (अगर पर्यावरण वेरिएबल सेट नहीं है)
-"mongodb+srv://ggreenmobility%40gmail.com:EmZKyHHp4tVSkRB@cluster0.bpraxez.mongodb.net/"
-const MONGO_URI = "mongodb+srv://ggreenmobility%40gmail.com:EmZKyHHp4tVSkRB@cluster0.bprax... (आपकी पूरी लिंक)";
+"mongodb+srv://ggreenmobility%40gmail.com:Greenmobility123cluster0.bpraxez.mongodb.net/"
+const MONGO_URI = "mongodb+srv://ggreenmobility%40gmail.com:Greenmobility123cluster0.bprax... (आपकी पूरी लिंक)";
 
 mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
