@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(cors());
 
 // MongoDB Connection
-const MONGO_URI = "mongodb+srv://ggreenmobility_db_user:GreenMobility123@cluster0.bpraxez.mongodb.net/?retryWrites=true&w=majority";
+const MONGO_URI = "mongodb+srv://ggreenmobility_db_user:Green6043@cluster0.bpraxez.mongodb.net/?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
