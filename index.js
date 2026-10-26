@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Front-end files (rider.html, admin.html) ko direct serve karne ke liye
+// Front-end files serve karne ke liye
 app.use(express.static(__dirname));
 
 // MongoDB Connection
@@ -21,7 +21,7 @@ mongoose.connect(MONGO_URI, {
     console.log("MongoDB Connection Error: ", err);
 });
 
-// Rider Schema & Model (Added drivingLicense and scooterNumber)
+// Rider Schema & Model
 const riderSchema = new mongoose.Schema({
     name: String,
     phone: String,
@@ -29,6 +29,10 @@ const riderSchema = new mongoose.Schema({
     drivingLicense: String,
     aadhaar: String,
     pan: String,
+    guarantor1Name: String,
+    guarantor1Phone: String,
+    guarantor2Name: String,
+    guarantor2Phone: String,
     status: { type: String, default: 'Pending' },
     scooterNumber: { type: String, default: 'Not Assigned' },
     date: { type: Date, default: Date.now }
@@ -36,7 +40,7 @@ const riderSchema = new mongoose.Schema({
 
 const Rider = mongoose.model('Rider', riderSchema);
 
-// API Route to Register Rider (KYC Form Submission)
+// API Route to Register Rider (KYC)
 app.post('/api/register-rider', async (req, res) => {
     try {
         const newRider = new Rider(req.body);
@@ -47,7 +51,7 @@ app.post('/api/register-rider', async (req, res) => {
     }
 });
 
-// API Route to Get All Riders (For Admin Panel)
+// API Route to Get All Riders (Admin)
 app.get('/api/riders', async (req, res) => {
     try {
         const riders = await Rider.find();
@@ -57,7 +61,7 @@ app.get('/api/riders', async (req, res) => {
     }
 });
 
-// API Route to Update Rider Status & Scooter Number (Matching admin.html)
+// API Route to Update Rider Status (Approve / Reject)
 app.post('/api/update-rider', async (req, res) => {
     try {
         const { id, status, scooterNumber } = req.body;
