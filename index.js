@@ -21,7 +21,7 @@ mongoose.connect(MONGO_URI, {
     console.log("MongoDB Connection Error: ", err);
 });
 
-// Rider Schema & Model
+// Rider Schema & Model (Added status field)
 const riderSchema = new mongoose.Schema({
     name: String,
     phone: String,
@@ -29,6 +29,7 @@ const riderSchema = new mongoose.Schema({
     drivinglicense: String,
     aadhaar: String,
     pan: String,
+    status: { type: String, default: 'Pending' },
     date: { type: Date, default: Date.now }
 });
 
@@ -50,6 +51,24 @@ app.get('/api/riders', async (req, res) => {
     try {
         const riders = await Rider.find();
         res.status(200).json(riders);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// API Route to Update Rider Status (Approve/Reject from Admin Panel)
+app.put('/api/riders/:id', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const updatedRider = await Rider.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        );
+        if (!updatedRider) {
+            return res.status(404).json({ success: false, message: "Rider not found" });
+        }
+        res.status(200).json({ success: true, message: "Status updated successfully!", updatedRider });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
