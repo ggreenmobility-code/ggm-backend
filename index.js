@@ -21,7 +21,7 @@ mongoose.connect(MONGO_URI, {
     console.log("MongoDB Connection Error: ", err);
 });
 
-// Rider Schema & Model (Added status field)
+// Rider Schema & Model (Added drivingLicense and scooterNumber)
 const riderSchema = new mongoose.Schema({
     name: String,
     phone: String,
@@ -30,6 +30,7 @@ const riderSchema = new mongoose.Schema({
     aadhaar: String,
     pan: String,
     status: { type: String, default: 'Pending' },
+    scooterNumber: { type: String, default: 'Not Assigned' },
     date: { type: Date, default: Date.now }
 });
 
@@ -56,19 +57,19 @@ app.get('/api/riders', async (req, res) => {
     }
 });
 
-// API Route to Update Rider Status (Approve/Reject from Admin Panel)
-app.put('/api/riders/:id', async (req, res) => {
+// API Route to Update Rider Status & Scooter Number (Matching admin.html)
+app.post('/api/update-rider', async (req, res) => {
     try {
-        const { status } = req.body;
+        const { id, status, scooterNumber } = req.body;
         const updatedRider = await Rider.findByIdAndUpdate(
-            req.params.id,
-            { status },
+            id,
+            { status, scooterNumber },
             { new: true }
         );
         if (!updatedRider) {
             return res.status(404).json({ success: false, message: "Rider not found" });
         }
-        res.status(200).json({ success: true, message: "Status updated successfully!", updatedRider });
+        res.status(200).json({ success: true, message: "Rider updated successfully!", updatedRider });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
