@@ -3,87 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go Green Mobility - Rider Registration</title>
+    <title>Go Green Mobility - Rider Registration & KYC</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 font-sans">
-    <div class="max-w-xl mx-auto my-10 bg-white p-8 rounded-lg shadow-md">
-        <h2 class="text-2xl font-bold text-green-600 mb-1 text-center">Go Green Mobility</h2>
-        <p class="text-gray-500 text-center mb-6" id="formTitle">स्टेप 1: बेसिक जानकारी (Basic Details)</p>
-
-        <form id="riderForm" class="space-y-4">
-            <!-- पेज 1: बेसिक जानकारी -->
-            <div id="step1" class="space-y-4">
-                <div>
-                    <label class="block text-gray-700 font-medium mb-1">पूरा नाम (Full Name)</label>
-                    <input type="text" id="name" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="राजेश कुमार">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-1">मोबाइल नंबर (Phone Number)</label>
-                    <input type="tel" id="phone" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="9876543210">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-1">डिलिवरी पार्टनर (Delivery Partner)</label>
-                    <select id="partner" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <option value="Blinkit">Blinkit</option>
-                        <option value="Zepto">Zepto</option>
-                        <option value="Instamart">Instamart</option>
-                    </select>
-                </div>
-                <button type="button" onclick="nextStep()" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition mt-4">अगला (Next)</button>
+<body class="bg-gray-100 font-sans">
+    <div class="max-w-xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md mb-10">
+        <h2 class="text-2xl font-bold text-green-600 mb-6 text-center">Go Green Mobility - KYC Form</h2>
+        <form id="riderForm">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">पूरा नाम (Full Name)</label>
+                <input type="text" id="name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="राइडर का नाम">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">मोबाइल नंबर (Phone Number)</label>
+                <input type="text" id="phone" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="10 अंकों का मोबाइल नंबर">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">पार्टनर (Delivery Partner)</label>
+                <select id="partner" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500">
+                    <option value="">पार्टनर चुनें</option>
+                    <option value="Zepto">Zepto</option>
+                    <option value="Blinkit">Blinkit</option>
+                    <option value="Instamart">Instamart</option>
+                    <option value="Swiggy/Zomato">Swiggy/Zomato</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">ड्राइविंग लाइसेंस नंबर (Driving License No.)</label>
+                <input type="text" id="drivingLicense" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="DL Number">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">आधार नंबर (Aadhaar Number)</label>
+                <input type="text" id="aadhaar" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="12 अंकों का आधार नंबर">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">पैन कार्ड नंबर (PAN Number)</label>
+                <input type="text" id="pan" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500 uppercase" placeholder="PAN Number">
             </div>
 
-            <!-- पेज 2: केवाईसी डॉक्यूमेंट्स -->
-            <div id="step2" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-gray-700 font-medium mb-1">ड्राइविंग लाइसेंस नंबर (Driving License No.)</label>
-                    <input type="text" id="drivingLicense" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="DL-1420110012345">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-1">आधार नंबर (Aadhaar Number)</label>
-                    <input type="text" id="aadhaar" maxlength="12" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="12 अंक का आधार नंबर">
-                </div>
-                <div>
-                    <label class="block text-gray-700 font-medium mb-1">पैन कार्ड नंबर (PAN Number)</label>
-                    <input type="text" id="pan" maxlength="10" class="w-full px-3 py-2 border rounded-lg uppercase focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="ABCDE1234F">
-                </div>
-                
-                <div class="flex gap-4 mt-4">
-                    <button type="button" onclick="prevStep()" class="w-1/2 bg-gray-400 text-white py-3 rounded-lg font-semibold hover:bg-gray-500 transition">पीछे (Back)</button>
-                    <button type="submit" class="w-1/2 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">केवाईसी सबमिट करें</button>
-                </div>
+            <!-- Guarantor 1 -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">पहला गारंटर नाम (Guarantor 1 Name)</label>
+                <input type="text" id="guarantor1Name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="पहला गारंटर का नाम">
             </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">पहला गारंटर मोबाइल नंबर (Guarantor 1 Phone)</label>
+                <input type="text" id="guarantor1Phone" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="मोबाइल नंबर">
+            </div>
+
+            <!-- Guarantor 2 -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">दूसरा गारंटर नाम (Guarantor 2 Name)</label>
+                <input type="text" id="guarantor2Name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="दूसरा गारंटर का नाम">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">दूसरा गारंटर मोबाइल नंबर (Guarantor 2 Phone)</label>
+                <input type="text" id="guarantor2Phone" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="मोबाइल नंबर">
+            </div>
+
+            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">केवाईसी सबमिट करें</button>
         </form>
         <div id="message" class="mt-4 text-center font-medium"></div>
     </div>
 
     <script>
-        const API_URL = "https://ggm-backend-77yp.onrender.com";
-
-        function nextStep() {
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const msgDiv = document.getElementById('message');
-
-            if (!name || !phone) {
-                msgDiv.className = "mt-4 text-center font-medium text-red-600";
-                msgDiv.innerText = "कृपया नाम और मोबाइल नंबर भरें!";
-                return;
-            }
-
-            msgDiv.innerText = "";
-            document.getElementById('step1').classList.add('hidden');
-            document.getElementById('step2').classList.remove('hidden');
-            document.getElementById('formTitle').innerText = "स्टेप 2: केवाईसी डॉक्यूमेंट्स (KYC Details)";
-        }
-
-        function prevStep() {
-            document.getElementById('step2').classList.add('hidden');
-            document.getElementById('step1').classList.remove('hidden');
-            document.getElementById('formTitle').innerText = "स्टेप 1: बेसिक जानकारी (Basic Details)";
-            document.getElementById('message').innerText = "";
-        }
-
         document.getElementById('riderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('name').value;
@@ -92,36 +76,33 @@
             const drivingLicense = document.getElementById('drivingLicense').value;
             const aadhaar = document.getElementById('aadhaar').value;
             const pan = document.getElementById('pan').value;
+            const guarantor1Name = document.getElementById('guarantor1Name').value;
+            const guarantor1Phone = document.getElementById('guarantor1Phone').value;
+            const guarantor2Name = document.getElementById('guarantor2Name').value;
+            const guarantor2Phone = document.getElementById('guarantor2Phone').value;
             const msgDiv = document.getElementById('message');
 
-            if (!drivingLicense || !aadhaar || !pan) {
-                msgDiv.className = "mt-4 text-center font-medium text-red-600";
-                msgDiv.innerText = "कृपया सभी केवाईसी डॉक्यूमेंट्स भरें!";
-                return;
-            }
-
             try {
-                const response = await fetch(`${API_URL}/api/register-rider`, {
+                const response = await fetch('/api/register-rider', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, phone, partner, drivingLicense, aadhaar, pan })
+                    body: JSON.stringify({ 
+                        name, phone, partner, drivingLicense, aadhaar, pan, 
+                        guarantor1Name, guarantor1Phone, guarantor2Name, guarantor2Phone 
+                    })
                 });
-                const data = await response.json();
-                if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
                     msgDiv.className = "mt-4 text-center font-medium text-green-600";
-                    msgDiv.innerText = "सफलतापूर्वक रजिस्ट्रेशन और केवाईसी हो गया!";
+                    msgDiv.innerText = "Rider registered successfully!";
                     document.getElementById('riderForm').reset();
-                    setTimeout(() => {
-                        prevStep();
-                        msgDiv.innerText = "";
-                    }, 3000);
                 } else {
                     msgDiv.className = "mt-4 text-center font-medium text-red-600";
-                    msgDiv.innerText = data.message || "रजिस्ट्रेशन विफल हुआ।";
+                    msgDiv.innerText = "Error: " + result.message;
                 }
             } catch (err) {
                 msgDiv.className = "mt-4 text-center font-medium text-red-600";
-                msgDiv.innerText = "सर्वर से कनेक्ट करने में त्रुटि।";
+                msgDiv.innerText = "Server connection error.";
             }
         });
     </script>
