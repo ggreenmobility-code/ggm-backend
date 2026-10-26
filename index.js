@@ -1,13 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-// Front-end files serve karne ke liye
-app.use(express.static(__dirname));
 
 // MongoDB Connection
 const MONGO_URI = "mongodb+srv://ggreenmobility_db_user:Green6043@cluster0.bpraxez.mongodb.net/?retryWrites=true&w=majority";
@@ -78,6 +76,18 @@ app.post('/api/update-rider', async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 });
+
+// 🌐 Clean URLs Routing (बिना .html के लिंक खोलने के लिए)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'rider.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// Static files fallback
+app.use(express.static(__dirname));
 
 // Start Server
 const PORT = process.env.PORT || 10000;
