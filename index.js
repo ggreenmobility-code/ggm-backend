@@ -26,7 +26,7 @@ const riderSchema = new mongoose.Schema({
     name: String,
     phone: String,
     partner: String,
-    drivinglicense: String,
+    drivingLicense: String,
     aadhaar: String,
     pan: String,
     status: { type: String, default: 'Pending' },
