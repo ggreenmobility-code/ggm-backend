@@ -1,0 +1,18 @@
+const { MongoClient } = require('mongodb');
+require('dotenv').config();
+
+const uri = process.env.MONGO_URI;
+const client = new MongoClient(uri);
+
+async function run() {
+    try {
+        await client.connect();
+        console.log("🎉 बधाई हो! Go Green Mobility का डेटाबेस सफलतापूर्वक कनेक्ट हो गया है!");
+    } catch (error) {
+        console.error("कनेक्शन में कोई गलती है:", error);
+    } finally {
+        await client.close();
+    }
+}
+
+run();
