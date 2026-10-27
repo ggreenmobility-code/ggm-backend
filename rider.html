@@ -3,20 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go Green Mobility - Rider Registration & KYC</title>
+    <title>Go Green Mobility - Rider KYC & Verification</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="max-w-xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md mb-10">
-        <h2 class="text-2xl font-bold text-green-600 mb-6 text-center">Go Green Mobility - KYC Form</h2>
-        <form id="riderForm">
+        <h2 class="text-2xl font-bold text-green-600 mb-6 text-center">Go Green Mobility - Rider Verification</h2>
+
+        <!-- Step 1: Phone & OTP Section -->
+        <div id="otpSection">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">मोबाइल नंबर (Phone Number)</label>
+                <div class="flex gap-2">
+                    <input type="text" id="phone" required maxlength="10" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="10 अंकों का मोबाइल नंबर">
+                    <button type="button" onclick="sendOtp()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition whitespace-nowrap">OTP भेजें</button>
+                </div>
+            </div>
+
+            <div id="otpInputDiv" class="mb-4 hidden">
+                <label class="block text-gray-700 font-medium mb-1">ओटीपी दर्ज करें (Enter OTP)</label>
+                <div class="flex gap-2">
+                    <input type="text" id="otp" maxlength="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="4 अंकों का OTP">
+                    <button type="button" onclick="verifyOtp()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition whitespace-nowrap">वेरीफाई करें</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Main KYC Form (Initially Hidden) -->
+        <form id="riderForm" class="hidden mt-6">
+            <div class="mb-4 bg-green-50 p-3 rounded text-green-700 font-medium text-center">
+                ✓ मोबाइल नंबर वेरिफाइड है: <span id="verifiedPhoneDisplay"></span>
+            </div>
+
             <div class="mb-4">
                 <label class="block text-gray-700 font-medium mb-1">पूरा नाम (Full Name)</label>
                 <input type="text" id="name" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="राइडर का नाम">
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-medium mb-1">मोबाइल नंबर (Phone Number)</label>
-                <input type="text" id="phone" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-green-500" placeholder="10 अंकों का मोबाइल नंबर">
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 font-medium mb-1">पार्टनर (Delivery Partner)</label>
@@ -64,38 +85,96 @@
 
             <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">केवाईसी सबमिट करें</button>
         </form>
+
         <div id="message" class="mt-4 text-center font-medium"></div>
     </div>
 
     <script>
+        let verifiedPhone = "";
+
+        async function sendOtp() {
+            const phone = document.getElementById('phone').value;
+            const msgDiv = document.getElementById('message');
+
+            if (phone.length !== 10) {
+                alert("कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें।");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    msgDiv.className = "mt-4 text-center font-medium text-green-600";
+                    msgDiv.innerText = "OTP भेजा गया है! कृपया अपना फोन चेक करें।";
+                    document.getElementById('otpInputDiv').classList.remove('hidden');
+                } else {
+                    alert(data.message);
+                }
+            } catch (err) {
+                alert("सर्वर त्रुटि।");
+            }
+        }
+
+        async function verifyOtp() {
+            const phone = document.getElementById('phone').value;
+            const otp = document.getElementById('otp').value;
+            const msgDiv = document.getElementById('message');
+
+            try {
+                const res = await fetch('/api/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, otp })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    verifiedPhone = phone;
+                    document.getElementById('verifiedPhoneDisplay').innerText = phone;
+                    document.getElementById('otpSection').classList.add('hidden');
+                    document.getElementById('riderForm').classList.remove('hidden');
+                    msgDiv.innerText = "";
+                } else {
+                    msgDiv.className = "mt-4 text-center font-medium text-red-600";
+                    msgDiv.innerText = data.message;
+                }
+            } catch (err) {
+                alert("वेरिफिकेशन त्रुटि।");
+            }
+        }
+
         document.getElementById('riderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const partner = document.getElementById('partner').value;
-            const drivingLicense = document.getElementById('drivingLicense').value;
-            const aadhaar = document.getElementById('aadhaar').value;
-            const pan = document.getElementById('pan').value;
-            const guarantor1Name = document.getElementById('guarantor1Name').value;
-            const guarantor1Phone = document.getElementById('guarantor1Phone').value;
-            const guarantor2Name = document.getElementById('guarantor2Name').value;
-            const guarantor2Phone = document.getElementById('guarantor2Phone').value;
             const msgDiv = document.getElementById('message');
+
+            const formData = {
+                phone: verifiedPhone,
+                name: document.getElementById('name').value,
+                partner: document.getElementById('partner').value,
+                drivingLicense: document.getElementById('drivingLicense').value,
+                aadhaar: document.getElementById('aadhaar').value,
+                pan: document.getElementById('pan').value,
+                guarantor1Name: document.getElementById('guarantor1Name').value,
+                guarantor1Phone: document.getElementById('guarantor1Phone').value,
+                guarantor2Name: document.getElementById('guarantor2Name').value,
+                guarantor2Phone: document.getElementById('guarantor2Phone').value
+            };
 
             try {
                 const response = await fetch('/api/register-rider', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        name, phone, partner, drivingLicense, aadhaar, pan, 
-                        guarantor1Name, guarantor1Phone, guarantor2Name, guarantor2Phone 
-                    })
+                    body: JSON.stringify(formData)
                 });
                 const result = await response.json();
                 if (result.success) {
                     msgDiv.className = "mt-4 text-center font-medium text-green-600";
-                    msgDiv.innerText = "Rider registered successfully!";
-                    document.getElementById('riderForm').reset();
+                    msgDiv.innerText = "Rider KYC registered successfully!";
+                    setTimeout(() => location.reload(), 2000);
                 } else {
                     msgDiv.className = "mt-4 text-center font-medium text-red-600";
                     msgDiv.innerText = "Error: " + result.message;
