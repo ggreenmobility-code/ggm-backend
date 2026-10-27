@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const axios = require('axios'); // SMS bhejne ke liye
 
 const app = express();
 app.use(express.json());
@@ -19,10 +20,12 @@ mongoose.connect(MONGO_URI, {
     console.log("MongoDB Connection Error: ", err);
 });
 
-// Rider Schema & Model
+// Rider Schema & Model (OTP aur Verification fields ke sath)
 const riderSchema = new mongoose.Schema({
+    phone: { type: String, unique: true },
+    otp: String,
+    isVerified: { type: Boolean, default: false },
     name: String,
-    phone: String,
     partner: String,
     drivingLicense: String,
     aadhaar: String,
@@ -38,46 +41,112 @@ const riderSchema = new mongoose.Schema({
 
 const Rider = mongoose.model('Rider', riderSchema);
 
-// API Route to Register Rider (KYC)
-app.post('/api/register-rider', async (req, res) => {
+// 1. API to Send Real SMS OTP
+app.post('/api/send-otp', async (req, res) => {
     try {
-        const newRider = new Rider(req.body);
-        await newRider.save();
-        res.status(201).json({ success: true, message: "Rider registered successfully!" });
+        const { phone } = req.body;
+        if (!phone || phone.length !== 10) {
+            return res.status(400).json({ success: false, message: "कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें।" });
+        }
+
+        // 4 अंकों का रैंडम ओटीपी जनरेट करें
+        const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+        // Database me phone aur otp save/update karein
+        await Rider.findOneAndUpdate(
+            { phone },
+            { phone, otp, isVerified: false },
+            { upsert: true, new: true }
+        );
+
+        // --- Fast2SMS API Integration ---
+        // (Yaha apni Fast2SMS API Key dalein)
+        const apiKey = "YOUR_FAST2SMS_API_KEY"; 
+        const message = `Go Green Mobility OTP: ${otp} hai. Kripya ise kisi ke sath share na karein.`;
+        
+        // Agar aapke paas abhi API key nahi hai, to ye API call comment out karke testing ke liye console.log(otp) dekh sakte hain
+        /*
+        await axios.get(`https://www.fast2sms.com/dev/bulkV2`, {
+            params: {
+                authorization: apiKey,
+                route: 'q',
+                message: message,
+                language: 'english',
+                flash: 0,
+                numbers: phone
+            }
+        });
+        */
+
+        console.log(`OTP for ${phone} is: ${otp}`); // Testing ke liye console me dikega
+
+        res.status(200).json({ success: true, message: "OTP successfully sent!" });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// API Route to Get All Riders (Admin)
+// 2. API to Verify OTP
+app.post('/api/verify-otp', async (req, res) => {
+    try {
+        const { phone, otp } = req.body;
+        const rider = await Rider.findOne({ phone });
+
+        if (!rider || rider.otp !== otp) {
+            return.status(400).json({ success: false, message: "गलत ओटीपी! कृपया दोबारा प्रयास करें।" });
+        }
+
+        rider.isVerified = true;
+        await rider.save();
+
+        res.status(200).json({ success: true, message: "OTP Verified Successfully!" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// 3. API to Complete Rider KYC Registration
+app.post('/api/register-rider', async (req, res) => {
+    try {
+        const { phone, name, partner, drivingLicense, aadhaar, pan, guarantor1Name, guarantor1Phone, guarantor2Name, guarantor2Phone } = req.body;
+        
+        const updatedRider = await Rider.findOneAndUpdate(
+            { phone, isVerified: true },
+            { name, partner, drivingLicense, aadhaar, pan, guarantor1Name, guarantor1Phone, guarantor2Name, guarantor2Phone },
+            { new: true }
+        );
+
+        if (!updatedRider) {
+            return.status(400).json({ success: false, message: "पहले मोबाइल नंबर वेरीफाई करें।" });
+        }
+
+        res.status(201).json({ success: true, message: "Rider KYC registered successfully!" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Admin APIs
 app.get('/api/riders', async (req, res) => {
     try {
-        const riders = await Rider.find();
+        const riders = await Rider.find({ isVerified: true }); // Sirf verified riders dikhenge
         res.status(200).json(riders);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// API Route to Update Rider Status (Approve / Reject)
 app.post('/api/update-rider', async (req, res) => {
     try {
         const { id, status, scooterNumber } = req.body;
-        const updatedRider = await Rider.findByIdAndUpdate(
-            id,
-            { status, scooterNumber },
-            { new: true }
-        );
-        if (!updatedRider) {
-            return res.status(404).json({ success: false, message: "Rider not found" });
-        }
-        res.status(200).json({ success: true, message: "Rider updated successfully!", updatedRider });
+        const updatedRider = await Rider.findByIdAndUpdate(id, { status, scooterNumber }, { new: true });
+        res.status(200).json({ success: true, updatedRider });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// 🌐 Clean URLs Routing (बिना .html के लिंक खोलने के लिए)
+// Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'rider.html'));
 });
@@ -86,10 +155,8 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// Static files fallback
 app.use(express.static(__dirname));
 
-// Start Server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
