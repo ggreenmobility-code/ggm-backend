@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const axios = require('axios'); // SMS bhejne ke liye
+const axios = require('axios');
 
 const app = express();
 app.use(express.json());
@@ -20,7 +20,7 @@ mongoose.connect(MONGO_URI, {
     console.log("MongoDB Connection Error: ", err);
 });
 
-// Rider Schema & Model (OTP aur Verification fields ke sath)
+// Rider Schema & Model
 const riderSchema = new mongoose.Schema({
     phone: { type: String, unique: true },
     otp: String,
@@ -41,7 +41,7 @@ const riderSchema = new mongoose.Schema({
 
 const Rider = mongoose.model('Rider', riderSchema);
 
-// 1. API to Send Real SMS OTP
+// 1. API to Send OTP
 app.post('/api/send-otp', async (req, res) => {
     try {
         const { phone } = req.body;
@@ -49,36 +49,15 @@ app.post('/api/send-otp', async (req, res) => {
             return res.status(400).json({ success: false, message: "कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें।" });
         }
 
-        // 4 अंकों का रैंडम ओटीपी जनरेट करें
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-        // Database me phone aur otp save/update karein
         await Rider.findOneAndUpdate(
             { phone },
             { phone, otp, isVerified: false },
             { upsert: true, new: true }
         );
 
-        // --- Fast2SMS API Integration ---
-        // (Yaha apni Fast2SMS API Key dalein)
-        const apiKey = "YOUR_FAST2SMS_API_KEY"; 
-        const message = `Go Green Mobility OTP: ${otp} hai. Kripya ise kisi ke sath share na karein.`;
-        
-        // Agar aapke paas abhi API key nahi hai, to ye API call comment out karke testing ke liye console.log(otp) dekh sakte hain
-        /*
-        await axios.get(`https://www.fast2sms.com/dev/bulkV2`, {
-            params: {
-                authorization: apiKey,
-                route: 'q',
-                message: message,
-                language: 'english',
-                flash: 0,
-                numbers: phone
-            }
-        });
-        */
-
-        console.log(`OTP for ${phone} is: ${otp}`); // Testing ke liye console me dikega
+        console.log(`OTP for ${phone} is: ${otp}`); // Render logs me OTP dikhega
 
         res.status(200).json({ success: true, message: "OTP successfully sent!" });
     } catch (error) {
@@ -86,14 +65,14 @@ app.post('/api/send-otp', async (req, res) => {
     }
 });
 
-// 2. API to Verify OTP
+// 2. API to Verify OTP (Sahi kiya gaya code)
 app.post('/api/verify-otp', async (req, res) => {
     try {
         const { phone, otp } = req.body;
         const rider = await Rider.findOne({ phone });
 
         if (!rider || rider.otp !== otp) {
-            return.status(400).json({ success: false, message: "गलत ओटीपी! कृपया दोबारा प्रयास करें।" });
+            return res.status(400).json({ success: false, message: "गलत ओटीपी! कृपया दोबारा प्रयास करें।" });
         }
 
         rider.isVerified = true;
@@ -117,7 +96,7 @@ app.post('/api/register-rider', async (req, res) => {
         );
 
         if (!updatedRider) {
-            return.status(400).json({ success: false, message: "पहले मोबाइल नंबर वेरीफाई करें।" });
+            return res.status(400).json({ success: false, message: "पहले मोबाइल नंबर वेरीफाई करें।" });
         }
 
         res.status(201).json({ success: true, message: "Rider KYC registered successfully!" });
@@ -129,7 +108,7 @@ app.post('/api/register-rider', async (req, res) => {
 // Admin APIs
 app.get('/api/riders', async (req, res) => {
     try {
-        const riders = await Rider.find({ isVerified: true }); // Sirf verified riders dikhenge
+        const riders = await Rider.find({ isVerified: true });
         res.status(200).json(riders);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
