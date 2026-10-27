@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const axios = require('axios');
 
 const app = express();
 app.use(express.json());
@@ -65,7 +64,7 @@ app.post('/api/send-otp', async (req, res) => {
     }
 });
 
-// 2. API to Verify OTP (Sahi kiya gaya code)
+// 2. API to Verify OTP
 app.post('/api/verify-otp', async (req, res) => {
     try {
         const { phone, otp } = req.body;
